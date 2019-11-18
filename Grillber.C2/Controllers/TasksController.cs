@@ -14,7 +14,7 @@ namespace Grillber.C2.Controllers
             new TaskOut()
             {
                 Id = Guid.NewGuid(),
-                CreatedDate = DateTime.Parse("11/18/2019 4:45 PM"),
+                CreatedDate = DateTime.Parse("11/18/2019 4:45 PM").ToUniversalTime(),
                 User = new UserOut()
                 {
                     Id = Guid.NewGuid(),
@@ -23,13 +23,13 @@ namespace Grillber.C2.Controllers
                     Username = "GrillMaster5767"
                 },
                 TaskBody = "Talk with Marketing about new R&D outreach program.",
-                CompletedDated = DateTime.Parse("11/19/2019 3:55 PM"),
+                CompletedDated = DateTime.Parse("11/19/2019 3:55 PM").ToUniversalTime(),
                 IsCompleted = true
             },
             new TaskOut()
             {
                 Id = Guid.NewGuid(),
-                CreatedDate = DateTime.Parse("11/17/2019 8:15 AM"),
+                CreatedDate = DateTime.Parse("11/17/2019 8:15 AM").ToUniversalTime(),
                 User = new UserOut()
                 {
                     Id = Guid.NewGuid(),
@@ -44,7 +44,7 @@ namespace Grillber.C2.Controllers
             new TaskOut()
             {
                 Id = Guid.NewGuid(),
-                CreatedDate = DateTime.Parse("11/19/2019 1:01 PM"),
+                CreatedDate = DateTime.Parse("11/19/2019 1:01 PM").ToUniversalTime(),
                 User = new UserOut()
                 {
                     Id = Guid.NewGuid(),
@@ -64,8 +64,14 @@ namespace Grillber.C2.Controllers
 
         public IHttpActionResult Get(Guid taskId)
         {
-            return Ok(StaticTasks.First(x => x.Id == taskId));
+            var foundTask = StaticTasks.FirstOrDefault(x => x.Id == taskId);
+            if(foundTask != null)
+                return Ok(StaticTasks.First(x => x.Id == taskId));
+            else
+                return NotFound();
         }
+
+
     }
 
     public class TaskOut
