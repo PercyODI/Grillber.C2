@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.902
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grillber.C2", "Grillber.C2\Grillber.C2.csproj", "{8EBE88A1-82F2-457B-9738-D65070CDC8D4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grillber.C2.Tests", "Grillber.C2.Tests\Grillber.C2.Tests.csproj", "{F06AE7C3-0585-45ED-A7CB-43004655C745}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8EBE88A1-82F2-457B-9738-D65070CDC8D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8EBE88A1-82F2-457B-9738-D65070CDC8D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8EBE88A1-82F2-457B-9738-D65070CDC8D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8EBE88A1-82F2-457B-9738-D65070CDC8D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F06AE7C3-0585-45ED-A7CB-43004655C745}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F06AE7C3-0585-45ED-A7CB-43004655C745}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F06AE7C3-0585-45ED-A7CB-43004655C745}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F06AE7C3-0585-45ED-A7CB-43004655C745}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CB7F8521-D250-4032-AEB3-8A4E33DF8618}
+	EndGlobalSection
+EndGlobal
