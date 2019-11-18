@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Web.Http.Results;
 
 namespace Grillber.C2.Controllers
 {
@@ -15,13 +16,7 @@ namespace Grillber.C2.Controllers
             {
                 Id = Guid.NewGuid(),
                 CreatedDate = DateTime.Parse("11/18/2019 4:45 PM").ToUniversalTime(),
-                User = new UserOut()
-                {
-                    Id = Guid.NewGuid(),
-                    FirstName = "Pearse",
-                    LastName = "Hutson",
-                    Username = "GrillMaster5767"
-                },
+                UserId = UsersController.StaticUsers.First(x => x.FirstName == "Pearse").Id,
                 TaskBody = "Talk with Marketing about new R&D outreach program.",
                 CompletedDated = DateTime.Parse("11/19/2019 3:55 PM").ToUniversalTime(),
                 IsCompleted = true
@@ -30,13 +25,7 @@ namespace Grillber.C2.Controllers
             {
                 Id = Guid.NewGuid(),
                 CreatedDate = DateTime.Parse("11/17/2019 8:15 AM").ToUniversalTime(),
-                User = new UserOut()
-                {
-                    Id = Guid.NewGuid(),
-                    FirstName = "Laura",
-                    LastName = "Laurason",
-                    Username = "Laraborabar"
-                },
+                UserId = UsersController.StaticUsers.First(x => x.FirstName == "Laura").Id,
                 TaskBody = "Get list of possible Grill Models and Brands.",
                 CompletedDated = null,
                 IsCompleted = false
@@ -45,13 +34,7 @@ namespace Grillber.C2.Controllers
             {
                 Id = Guid.NewGuid(),
                 CreatedDate = DateTime.Parse("11/19/2019 1:01 PM").ToUniversalTime(),
-                User = new UserOut()
-                {
-                    Id = Guid.NewGuid(),
-                    FirstName = "Marshall",
-                    LastName = "Eastfall",
-                    Username = "Marfall"
-                },
+                UserId = UsersController.StaticUsers.First(x => x.FirstName == "Marshall").Id,
                 TaskBody = "Let Accounting know if smokers count as a grills. ",
                 CompletedDated = null,
                 IsCompleted = false
@@ -71,24 +54,101 @@ namespace Grillber.C2.Controllers
                 return NotFound();
         }
 
+        public IHttpActionResult Post([FromBody] TaskNew newTask)
+        {
+            if (newTask.UserId == null || newTask.UserId == Guid.Empty)
+            {
+                return BadRequest("UserId must be provided.");
+            }
 
+            if (UsersController.StaticUsers.All(x => x.Id != newTask.UserId))
+            {
+                return BadRequest("No User found with given UserId.");
+            }
+
+            if (string.IsNullOrWhiteSpace(newTask.TaskBody))
+            {
+                return BadRequest("TaskBody must be provided.");
+            }
+
+            var newCreatedTask = new TaskOut()
+            {
+                Id = Guid.NewGuid(),
+                CreatedDate = DateTime.UtcNow,
+                TaskBody = newTask.TaskBody,
+                UserId = UsersController.StaticUsers.First(x => x.Id == newTask.UserId).Id,
+                CompletedDated = null,
+                IsCompleted = false
+            };
+            StaticTasks.Add(newCreatedTask);
+
+            return Ok(newCreatedTask);
+        }
+
+        public IHttpActionResult Put(Guid taskGuid, [FromBody] TaskUpdate updatedTask)
+        {
+            var foundTask = StaticTasks.FirstOrDefault(x => x.Id == taskGuid);
+            if (foundTask == null)
+            {
+                return NotFound();
+            }
+
+            if (updatedTask.UserId.HasValue)
+            {
+                var foundUser = UsersController.StaticUsers.FirstOrDefault(x => x.Id == updatedTask.UserId);
+                if (foundUser == null)
+                {
+                    return BadRequest("No User found with given UserId.");
+                }
+
+                foundTask.UserId = foundUser.Id;
+            }
+
+            if (updatedTask.IsCompleted.HasValue)
+            {
+                foundTask.IsCompleted = updatedTask.IsCompleted.Value;
+                if (updatedTask.IsCompleted.Value == true)
+                {
+                    foundTask.CompletedDated = DateTime.UtcNow;
+                }
+                else
+                {
+                    foundTask.CompletedDated = null;
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(updatedTask.TaskBody))
+            {
+                foundTask.TaskBody = updatedTask.TaskBody;
+            }
+
+            return Ok(foundTask);
+        }
+
+    }
+
+    public class TaskNew
+    {
+        public Guid UserId { get; set; }
+        public string TaskBody { get; set; }
+    }
+
+    public class TaskUpdate
+    {
+
+        public string TaskBody { get; set; }
+        public bool? IsCompleted { get; set; }
+        public Guid? UserId { get; set; }
     }
 
     public class TaskOut
     {
         public Guid Id { get; set; }
-        public UserOut User { get; set; }
+        public Guid UserId { get; set; }
         public string TaskBody { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? CompletedDated { get; set; }
         public bool IsCompleted { get; set; }
     }
 
-    public class UserOut
-    {
-        public Guid Id { get; set; }
-        public string Username { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-    }
 }
