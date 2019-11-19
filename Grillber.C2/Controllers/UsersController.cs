@@ -7,6 +7,7 @@ using System.Web.Http;
 
 namespace Grillber.C2.Controllers
 {
+    [RoutePrefix("api/Users")]
     public class UsersController : ApiController
     {
         public static List<UserOut> StaticUsers { get; } = new List<UserOut>()
@@ -33,6 +34,23 @@ namespace Grillber.C2.Controllers
                 Username = "Marfall"
             }
         };
+
+        [HttpGet]
+        public IHttpActionResult Get()
+        {
+            return Ok(StaticUsers);
+        }
+
+        [HttpGet]
+        [Route("{userId:Guid}")]
+        public IHttpActionResult Get(Guid userId)
+        {
+            var foundTask = StaticUsers.FirstOrDefault(x => x.Id == userId);
+            if (foundTask != null)
+                return Ok(StaticUsers.First(x => x.Id == userId));
+            else
+                return NotFound();
+        }
 
     }
     public class UserOut

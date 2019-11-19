@@ -8,6 +8,7 @@ using System.Web.Http.Results;
 
 namespace Grillber.C2.Controllers
 {
+    [RoutePrefix("api/Tasks")]
     public class TasksController : ApiController
     {
         public static List<TaskOut> StaticTasks { get; } = new List<TaskOut>()
@@ -45,6 +46,8 @@ namespace Grillber.C2.Controllers
             return Ok(StaticTasks);
         }
 
+        [HttpGet]
+        [Route("{taskId:Guid}")]
         public IHttpActionResult Get(Guid taskId)
         {
             var foundTask = StaticTasks.FirstOrDefault(x => x.Id == taskId);
@@ -85,9 +88,11 @@ namespace Grillber.C2.Controllers
             return Ok(newCreatedTask);
         }
 
-        public IHttpActionResult Put(Guid taskGuid, [FromBody] TaskUpdate updatedTask)
+        [HttpPut]
+        [Route("{taskId:Guid}")]
+        public IHttpActionResult Put(Guid taskId, [FromBody] TaskUpdate updatedTask)
         {
-            var foundTask = StaticTasks.FirstOrDefault(x => x.Id == taskGuid);
+            var foundTask = StaticTasks.FirstOrDefault(x => x.Id == taskId);
             if (foundTask == null)
             {
                 return NotFound();
@@ -117,7 +122,7 @@ namespace Grillber.C2.Controllers
                 }
             }
 
-            if (string.IsNullOrWhiteSpace(updatedTask.TaskBody))
+            if (!string.IsNullOrWhiteSpace(updatedTask.TaskBody))
             {
                 foundTask.TaskBody = updatedTask.TaskBody;
             }
