@@ -55,7 +55,7 @@ namespace Grillber.C2.Controllers
         [HttpPost]
         public IHttpActionResult Post([FromBody] UserNew newUser)
         {
-            if (!string.IsNullOrWhiteSpace(newUser.Username))
+            if (string.IsNullOrWhiteSpace(newUser.Username))
             {
                 return BadRequest("Username must be provided.");
             }
@@ -70,7 +70,7 @@ namespace Grillber.C2.Controllers
                 Id = Guid.NewGuid(),
                 FirstName = newUser.FirstName,
                 LastName = newUser.LastName,
-                Username = newUser.LastName
+                Username = newUser.Username
             };
             StaticUsers.Add(createdUser);
 
