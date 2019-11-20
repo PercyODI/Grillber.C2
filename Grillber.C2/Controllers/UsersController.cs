@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using Swashbuckle.Swagger.Annotations;
 
 namespace Grillber.C2.Controllers
 {
@@ -36,6 +37,7 @@ namespace Grillber.C2.Controllers
         };
 
         [HttpGet]
+        [SwaggerResponse(HttpStatusCode.OK, "Get all users", typeof(IEnumerable<UserOut>))]
         public IHttpActionResult Get()
         {
             return Ok(StaticUsers);
@@ -43,6 +45,8 @@ namespace Grillber.C2.Controllers
 
         [HttpGet]
         [Route("{userId:Guid}")]
+        [SwaggerResponse(HttpStatusCode.OK, "Get a single user", typeof(UserOut))]
+        [SwaggerResponse(HttpStatusCode.NotFound, "Could not find the specified user.")]
         public IHttpActionResult Get(Guid userId)
         {
             var foundTask = StaticUsers.FirstOrDefault(x => x.Id == userId);
@@ -53,6 +57,8 @@ namespace Grillber.C2.Controllers
         }
 
         [HttpPost]
+        [SwaggerResponse(HttpStatusCode.OK, "Create a new user.", typeof(UserOut))]
+        [SwaggerResponse(HttpStatusCode.BadRequest, "Input is incorrect. See message for details.")]
         public IHttpActionResult Post([FromBody] UserNew newUser)
         {
             if (string.IsNullOrWhiteSpace(newUser.Username))
@@ -79,6 +85,9 @@ namespace Grillber.C2.Controllers
 
         [HttpPut]
         [Route("{userId:Guid}")]
+        [SwaggerResponse(HttpStatusCode.OK, "Update an existing user.", typeof(UserOut))]
+        [SwaggerResponse(HttpStatusCode.NotFound, "Could not find the specified user.")]
+        [SwaggerResponse(HttpStatusCode.BadRequest, "Input is incorrect. See message for details.")]
         public IHttpActionResult Put(Guid userId, [FromBody] UserUpdate updatedUser)
         {
             var foundUser = StaticUsers.FirstOrDefault(su => su.Id == userId);

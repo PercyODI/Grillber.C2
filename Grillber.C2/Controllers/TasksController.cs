@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Results;
+using Swashbuckle.Swagger.Annotations;
 
 namespace Grillber.C2.Controllers
 {
@@ -41,6 +42,8 @@ namespace Grillber.C2.Controllers
                 IsCompleted = false
             }
         };
+        [HttpGet]
+        [SwaggerResponse(HttpStatusCode.OK, "Get all tasks", typeof(IEnumerable<TaskOut>))]
         public IHttpActionResult Get()
         {
             return Ok(StaticTasks);
@@ -48,6 +51,8 @@ namespace Grillber.C2.Controllers
 
         [HttpGet]
         [Route("{taskId:Guid}")]
+        [SwaggerResponse(HttpStatusCode.OK, "Get a single task", typeof(TaskOut))]
+        [SwaggerResponse(HttpStatusCode.NotFound, "Could not find the specified task.")]
         public IHttpActionResult Get(Guid taskId)
         {
             var foundTask = StaticTasks.FirstOrDefault(x => x.Id == taskId);
@@ -57,6 +62,9 @@ namespace Grillber.C2.Controllers
                 return NotFound();
         }
 
+        [HttpPost]
+        [SwaggerResponse(HttpStatusCode.OK, "Create a new task.", typeof(TaskOut))]
+        [SwaggerResponse(HttpStatusCode.BadRequest, "Input is incorrect. See message for details.")]
         public IHttpActionResult Post([FromBody] TaskNew newTask)
         {
             if (newTask.UserId == null || newTask.UserId == Guid.Empty)
@@ -90,6 +98,9 @@ namespace Grillber.C2.Controllers
 
         [HttpPut]
         [Route("{taskId:Guid}")]
+        [SwaggerResponse(HttpStatusCode.OK, "Update an existing task.", typeof(TaskOut))]
+        [SwaggerResponse(HttpStatusCode.NotFound, "Could not find the specified task.")]
+        [SwaggerResponse(HttpStatusCode.BadRequest, "Input is incorrect. See message for details.")]
         public IHttpActionResult Put(Guid taskId, [FromBody] TaskUpdate updatedTask)
         {
             var foundTask = StaticTasks.FirstOrDefault(x => x.Id == taskId);
@@ -109,7 +120,7 @@ namespace Grillber.C2.Controllers
                 foundTask.UserId = foundUser.Id;
             }
 
-            if (updatedTask.IsCompleted.HasValue)
+            if (updatedTask.IsCompleted.HasValue && updatedTask.IsCompleted != foundTask.IsCompleted)
             {
                 foundTask.IsCompleted = updatedTask.IsCompleted.Value;
                 if (updatedTask.IsCompleted.Value == true)
