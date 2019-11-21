@@ -8,7 +8,7 @@ using Swashbuckle.Swagger.Annotations;
 
 namespace Grillber.C2.Controllers
 {
-    [RoutePrefix("api/Users")]
+    [RoutePrefix("api/v1/Users")]
     public class UsersController : ApiController
     {
         public static List<UserOut> StaticUsers { get; } = new List<UserOut>()
@@ -37,6 +37,7 @@ namespace Grillber.C2.Controllers
         };
 
         [HttpGet]
+        [Route()]
         [SwaggerResponse(HttpStatusCode.OK, "Get all users", typeof(IEnumerable<UserOut>))]
         public IHttpActionResult Get()
         {
@@ -57,6 +58,7 @@ namespace Grillber.C2.Controllers
         }
 
         [HttpPost]
+        [Route()]
         [SwaggerResponse(HttpStatusCode.OK, "Create a new user.", typeof(UserOut))]
         [SwaggerResponse(HttpStatusCode.BadRequest, "Input is incorrect. See message for details.")]
         public IHttpActionResult Post([FromBody] UserNew newUser)

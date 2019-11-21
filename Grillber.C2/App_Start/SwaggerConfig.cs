@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Web.Http;
 using WebActivatorEx;
 using Grillber.C2;
@@ -32,7 +33,7 @@ namespace Grillber.C2
                         // hold additional metadata for an API. Version and title are required but you can also provide
                         // additional fields by chaining methods off SingleApiVersion.
                         //
-                        c.SingleApiVersion("v1", "Grillber.C2");
+                        //c.SingleApiVersion("v1", "Grillber.C2");
 
                         // If you want the output Swagger docs to be indented properly, enable the "PrettyPrint" option.
                         //
@@ -42,14 +43,19 @@ namespace Grillber.C2
                         // In this case, you must provide a lambda that tells Swashbuckle which actions should be
                         // included in the docs for a given API version. Like "SingleApiVersion", each call to "Version"
                         // returns an "Info" builder so you can provide additional metadata per API version.
-                        //
-                        //c.MultipleApiVersions(
-                        //    (apiDesc, targetApiVersion) => ResolveVersionSupportByRouteConstraint(apiDesc, targetApiVersion),
-                        //    (vc) =>
-                        //    {
-                        //        vc.Version("v2", "Swashbuckle Dummy API V2");
-                        //        vc.Version("v1", "Swashbuckle Dummy API V1");
-                        //    });
+
+                        c.MultipleApiVersions(
+                            (apiDesc, targetApiVersion) =>
+                            {
+                                var attr = apiDesc.ActionDescriptor.ControllerDescriptor.GetCustomAttributes<RoutePrefixAttribute>().FirstOrDefault();
+                                //if (attr == null && targetApiVersion == "v1") return true;
+                                return attr != null && attr.Prefix.Contains(targetApiVersion);
+                            },
+                            (vc) =>
+                            {
+                                vc.Version("v1", "GrillBer.C2 V1");
+                                vc.Version("v2", "GrillBer.C2 V2");
+                            });
 
                         // You can use "BasicAuth", "ApiKey" or "OAuth2" options to describe security schemes for the API.
                         // See https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md for more details.
@@ -61,7 +67,7 @@ namespace Grillber.C2
                         //c.BasicAuth("basic")
                         //    .Description("Basic HTTP Authentication");
                         //
-						// NOTE: You must also configure 'EnableApiKeySupport' below in the SwaggerUI section
+                        // NOTE: You must also configure 'EnableApiKeySupport' below in the SwaggerUI section
                         //c.ApiKey("apiKey")
                         //    .Description("API Key Authentication")
                         //    .Name("apiKey")

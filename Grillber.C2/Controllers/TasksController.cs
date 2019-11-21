@@ -6,36 +6,40 @@ using System.Net.Http;
 using System.Security.Principal;
 using System.Web.Http;
 using System.Web.Http.Results;
+using Grillber.C2.App_Start;
 using Swashbuckle.Swagger.Annotations;
 
 namespace Grillber.C2.Controllers
 {
-    [RoutePrefix("api/Tasks")]
+    [RoutePrefix("api/v1/Tasks")]
     public class TasksController : ApiController
     {
-        public static List<TaskOut> StaticTasks { get; } = new List<TaskOut>()
+        public static List<FullTask> StaticTasks { get; } = new List<FullTask>()
         {
-            new TaskOut()
+            new FullTask()
             {
                 Id = Guid.NewGuid(),
+                ParentTaskId = null,
                 CreatedDate = DateTime.Parse("11/18/2019 4:45 PM").ToUniversalTime(),
                 UserId = UsersController.StaticUsers.First(x => x.FirstName == "Pearse").Id,
                 TaskBody = "Talk with Marketing about new R&D outreach program.",
                 CompletedDated = DateTime.Parse("11/19/2019 3:55 PM").ToUniversalTime(),
                 IsCompleted = true
             },
-            new TaskOut()
+            new FullTask()
             {
                 Id = Guid.NewGuid(),
+                ParentTaskId = null,
                 CreatedDate = DateTime.Parse("11/17/2019 8:15 AM").ToUniversalTime(),
                 UserId = UsersController.StaticUsers.First(x => x.FirstName == "Laura").Id,
                 TaskBody = "Get list of possible Grill Models and Brands.",
                 CompletedDated = null,
                 IsCompleted = false
             },
-            new TaskOut()
+            new FullTask()
             {
                 Id = Guid.NewGuid(),
+                ParentTaskId = null,
                 CreatedDate = DateTime.Parse("11/19/2019 1:01 PM").ToUniversalTime(),
                 UserId = UsersController.StaticUsers.First(x => x.FirstName == "Marshall").Id,
                 TaskBody = "Let Accounting know if smokers count as a grills. ",
@@ -43,66 +47,70 @@ namespace Grillber.C2.Controllers
                 IsCompleted = false
             }
         };
+
         [HttpGet]
-        [SwaggerResponse(HttpStatusCode.OK, "Get all tasks", typeof(IEnumerable<TaskOut>))]
+        [Route()]
+        [SwaggerResponse(HttpStatusCode.OK, "Get all tasks", typeof(IEnumerable<TaskOutV1>))]
         public IHttpActionResult Get()
         {
-            return Ok(StaticTasks);
+            return Ok(MappingRegistrations.mapper.Map<IEnumerable<TaskOutV1>>(StaticTasks));
         }
 
         [HttpGet]
         [Route("{taskId:Guid}")]
-        [SwaggerResponse(HttpStatusCode.OK, "Get a single task", typeof(TaskOut))]
+        [SwaggerResponse(HttpStatusCode.OK, "Get a single task", typeof(TaskOutV1))]
         [SwaggerResponse(HttpStatusCode.NotFound, "Could not find the specified task.")]
         public IHttpActionResult Get(Guid taskId)
         {
             var foundTask = StaticTasks.FirstOrDefault(x => x.Id == taskId);
             if(foundTask != null)
-                return Ok(StaticTasks.First(x => x.Id == taskId));
+                return Ok(MappingRegistrations.mapper.Map<TaskOutV1>(foundTask));
             else
                 return NotFound();
         }
 
         [HttpPost]
-        [SwaggerResponse(HttpStatusCode.OK, "Create a new task.", typeof(TaskOut))]
+        [Route()]
+        [SwaggerResponse(HttpStatusCode.OK, "Create a new task.", typeof(TaskOutV1))]
         [SwaggerResponse(HttpStatusCode.BadRequest, "Input is incorrect. See message for details.")]
-        public IHttpActionResult Post([FromBody] TaskNew newTask)
+        public IHttpActionResult Post([FromBody] TaskNewV1 newV1Task)
         {
-            if (newTask.UserId == null || newTask.UserId == Guid.Empty)
+            if (newV1Task.UserId == null || newV1Task.UserId == Guid.Empty)
             {
                 return BadRequest("UserId must be provided.");
             }
 
-            if (UsersController.StaticUsers.All(x => x.Id != newTask.UserId))
+            if (UsersController.StaticUsers.All(x => x.Id != newV1Task.UserId))
             {
                 return BadRequest("No User found with given UserId.");
             }
 
-            if (string.IsNullOrWhiteSpace(newTask.TaskBody))
+            if (string.IsNullOrWhiteSpace(newV1Task.TaskBody))
             {
                 return BadRequest("TaskBody must be provided.");
             }
 
-            var newCreatedTask = new TaskOut()
+            var newCreatedTask = new FullTask()
             {
                 Id = Guid.NewGuid(),
+                ParentTaskId = null,
                 CreatedDate = DateTime.UtcNow,
-                TaskBody = newTask.TaskBody,
-                UserId = UsersController.StaticUsers.First(x => x.Id == newTask.UserId).Id,
+                TaskBody = newV1Task.TaskBody,
+                UserId = UsersController.StaticUsers.First(x => x.Id == newV1Task.UserId).Id,
                 CompletedDated = null,
                 IsCompleted = false
             };
             StaticTasks.Add(newCreatedTask);
 
-            return Ok(newCreatedTask);
+            return Ok(MappingRegistrations.mapper.Map<TaskOutV1>(newCreatedTask));
         }
 
         [HttpPut]
         [Route("{taskId:Guid}")]
-        [SwaggerResponse(HttpStatusCode.OK, "Update an existing task.", typeof(TaskOut))]
+        [SwaggerResponse(HttpStatusCode.OK, "Update an existing task.", typeof(TaskOutV1))]
         [SwaggerResponse(HttpStatusCode.NotFound, "Could not find the specified task.")]
         [SwaggerResponse(HttpStatusCode.BadRequest, "Input is incorrect. See message for details.")]
-        public IHttpActionResult Put(Guid taskId, [FromBody] TaskUpdate updatedTask)
+        public IHttpActionResult Put(Guid taskId, [FromBody] TaskUpdateV1 updatedTask)
         {
             var foundTask = StaticTasks.FirstOrDefault(x => x.Id == taskId);
             if (foundTask == null)
@@ -139,7 +147,7 @@ namespace Grillber.C2.Controllers
                 foundTask.TaskBody = updatedTask.TaskBody;
             }
 
-            return Ok(foundTask);
+            return Ok(MappingRegistrations.mapper.Map<TaskOutV1>(foundTask));
         }
 
         [HttpDelete]
@@ -159,21 +167,32 @@ namespace Grillber.C2.Controllers
 
     }
 
-    public class TaskNew
+    public class TaskNewV1
     {
         public Guid UserId { get; set; }
         public string TaskBody { get; set; }
     }
 
-    public class TaskUpdate
+    public class TaskUpdateV1
     {
-
         public string TaskBody { get; set; }
         public bool? IsCompleted { get; set; }
         public Guid? UserId { get; set; }
     }
 
-    public class TaskOut
+    public class FullTask
+    {
+        public Guid Id { get; set; }
+        public Guid? ParentTaskId { get; set; }
+        public Guid UserId { get; set; }
+        public string TaskBody { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime? CompletedDated { get; set; }
+        public bool IsCompleted { get; set; }
+
+    }
+
+    public class TaskOutV1
     {
         public Guid Id { get; set; }
         public Guid UserId { get; set; }
