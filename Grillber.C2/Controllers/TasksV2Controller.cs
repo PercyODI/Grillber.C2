@@ -99,12 +99,19 @@ namespace Grillber.C2.Controllers
                 }
                 else
                 {
-                    Guid guidParentTaskId;
-                    if (Guid.TryParse(updatedTask.ParentTaskId, out guidParentTaskId))
+                    // ReSharper disable once InlineOutVariableDeclaration
+                    // Doesn't work in Azure deploy :(
+                    Guid updatedParentTaskIdOut;
+                    if (Guid.TryParse(updatedTask.ParentTaskId, out updatedParentTaskIdOut))
                     {
-                        if (TasksController.StaticTasks.Any(st => st.Id == guidParentTaskId))
+                        if (foundTask.Id == updatedParentTaskIdOut)
                         {
-                            foundTask.ParentTaskId = guidParentTaskId;
+                            return BadRequest("Cannot set ParentTaskId to self.");
+                        }
+
+                        if (TasksController.StaticTasks.Any(st => st.Id == updatedParentTaskIdOut))
+                        {
+                            foundTask.ParentTaskId = updatedParentTaskIdOut;
                         }
                         else
                         {
