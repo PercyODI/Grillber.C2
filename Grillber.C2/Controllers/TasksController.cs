@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Principal;
 using System.Web.Http;
 using System.Web.Http.Results;
 using Swashbuckle.Swagger.Annotations;
@@ -139,6 +140,21 @@ namespace Grillber.C2.Controllers
             }
 
             return Ok(foundTask);
+        }
+
+        [HttpDelete]
+        [Route("{taskId:Guid}")]
+        public IHttpActionResult Delete(Guid taskId)
+        {
+            var foundTask = StaticTasks.FirstOrDefault(x => x.Id == taskId);
+            if (foundTask == null)
+            {
+                return NotFound();
+            }
+
+            StaticTasks.Remove(foundTask);
+
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
     }

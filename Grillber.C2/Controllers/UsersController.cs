@@ -107,8 +107,22 @@ namespace Grillber.C2.Controllers
             }
 
             return Ok(foundUser);
-        } 
+        }
 
+        [HttpDelete]
+        [Route("{userId:Guid}")]
+        public IHttpActionResult Delete(Guid userId)
+        {
+            var foundUser = StaticUsers.FirstOrDefault(x => x.Id == userId);
+            if (foundUser == null)
+            {
+                return NotFound();
+            }
+
+            StaticUsers.Remove(foundUser);
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
     }
 
     public class UserUpdate
