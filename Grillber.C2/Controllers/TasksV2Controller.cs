@@ -99,7 +99,7 @@ namespace Grillber.C2.Controllers
                 }
                 else
                 {
-                    if (Guid.TryParse(updatedTask.ParentTaskId, out var guidParentTaskId))
+                    if (Guid.TryParse(updatedTask.ParentTaskId, out var guidParentTaskId)) 
                     {
                         if (TasksController.StaticTasks.Any(st => st.Id == guidParentTaskId))
                         {
