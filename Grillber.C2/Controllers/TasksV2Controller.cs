@@ -99,8 +99,8 @@ namespace Grillber.C2.Controllers
                 }
                 else
                 {
-                    // ReSharper disable once InlineOutVariableDeclaration
                     // Doesn't work in Azure deploy :(
+                    // ReSharper disable once InlineOutVariableDeclaration
                     Guid updatedParentTaskIdOut;
                     if (Guid.TryParse(updatedTask.ParentTaskId, out updatedParentTaskIdOut))
                     {
@@ -160,6 +160,8 @@ namespace Grillber.C2.Controllers
 
         [HttpDelete]
         [Route("{taskId:Guid}")]
+        [SwaggerResponse(HttpStatusCode.NoContent, "Task Deleted Successfully")]
+        [SwaggerResponse(HttpStatusCode.NotFound, "Could not find the specified task.")]
         public IHttpActionResult Delete(Guid taskId)
         {
             var foundTask = TasksController.StaticTasks.FirstOrDefault(x => x.Id == taskId);

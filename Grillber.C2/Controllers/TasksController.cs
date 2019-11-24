@@ -152,6 +152,8 @@ namespace Grillber.C2.Controllers
 
         [HttpDelete]
         [Route("{taskId:Guid}")]
+        [SwaggerResponse(HttpStatusCode.NoContent, "Task Deleted Successfully")]
+        [SwaggerResponse(HttpStatusCode.NotFound, "Could not find the specified task.")]
         public IHttpActionResult Delete(Guid taskId)
         {
             var foundTask = StaticTasks.FirstOrDefault(x => x.Id == taskId);

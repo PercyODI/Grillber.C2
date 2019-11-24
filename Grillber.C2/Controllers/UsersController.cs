@@ -113,12 +113,20 @@ namespace Grillber.C2.Controllers
 
         [HttpDelete]
         [Route("{userId:Guid}")]
+        [SwaggerResponse(HttpStatusCode.NoContent, "User Deleted Successfully")]
+        [SwaggerResponse(HttpStatusCode.NotFound, "Could not find the specified user.")]
+        [SwaggerResponse(HttpStatusCode.BadRequest, "Input is incorrect. See message for details.")]
         public IHttpActionResult Delete(Guid userId)
         {
             var foundUser = StaticUsers.FirstOrDefault(x => x.Id == userId);
             if (foundUser == null)
             {
                 return NotFound();
+            }
+
+            if (TasksController.StaticTasks.Any(st => st.UserId == foundUser.Id))
+            {
+                return BadRequest("User has assigned tasks. Cannot delete.");
             }
 
             StaticUsers.Remove(foundUser);
